@@ -1,0 +1,4 @@
+repository "School Solving@TIP_Aurous@cloud"
+  path "/"
+    br "/main"
+    co "/main"

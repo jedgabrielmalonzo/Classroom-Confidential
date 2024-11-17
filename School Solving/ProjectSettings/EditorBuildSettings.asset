@@ -27,27 +27,33 @@ EditorBuildSettings:
     path: Assets/Scenes/Cutscenes/Cutscene6.unity
     guid: 8abb51570fc12479ea6a73db2f26e103
   - enabled: 1
+    path: Assets/Scenes/Day 1.unity
+    guid: 45cf123af5843604ca24121e360c5630
+  - enabled: 1
+    path: Assets/Scenes/Day2.unity
+    guid: af622c8c509585d408564cc0eca37cb7
+  - enabled: 0
     path: Assets/Scenes/Library.unity
     guid: 5fd0a78400de4f84cb9873c1f0cb6886
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Main Classroom.unity
     guid: 31384c5335c973647aa48993fcf926f7
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Canteen.unity
     guid: 4c16f7df524445545b591bfd07edda63
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Clinic Scene.unity
     guid: d5eb0bcf6ce1a594d969f4ba12e1279d
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Comfort Room.unity
     guid: d32f0ac8f3428e14dbb10526be71273b
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Hallway.unity
     guid: 1710adb304ed0524e8630bde264667f8
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Music Room.unity
     guid: 3565406644e7b904e81d410ae265ee2a
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Study Hall.unity
     guid: eb16191a796f173459c092afc402b9bd
   m_configObjects: {}

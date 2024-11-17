@@ -4,29 +4,41 @@ using UnityEngine;
 using TMPro;
 using Ink.Runtime;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 
 public class DialogueManager : MonoBehaviour
 {
     [Header("Dialogue UI")]
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TextMeshProUGUI dialogueText;
+    [SerializeField] private TextMeshProUGUI displayNameText;
+    [SerializeField] private Animator portraitAnimator;
+    private Animator layoutAnimator;
+
     [Header("Choices UI")]
     [SerializeField] private GameObject[] choices;
     private TextMeshProUGUI[] choicesText;
-    private Story currentStory;
-    public bool dialogueIsPlaying { get; private set; }
 
+
+    private Story currentStory;
+     public bool dialogueIsPlaying { get; private set; }
     private static DialogueManager instance;
 
-    private void Awake() 
+    private const string SPEAKER_TAG ="speaker";
+    private const string PORTRAIT_TAG ="portrait";
+    private const string LAYOUT_TAG ="layout";
+
+
+    private void Awake()
+{
+    if (instance != null)
     {
-        if (instance != null)
-        {
-            Debug.LogWarning("Found more than one dialogue manager in the scene");
-        }
-        instance = this;
+        Destroy(gameObject); // Destroy duplicate instances
+        return;
     }
+
+    instance = this;
+    DontDestroyOnLoad(transform.root.gameObject); // Ensure the whole Managers object persists
+}
 
     public static DialogueManager GetInstance()
     {
@@ -36,7 +48,9 @@ public class DialogueManager : MonoBehaviour
     private void Start() 
     {
         dialogueIsPlaying = false;
-        dialoguePanel.SetActive(false); 
+        dialoguePanel.SetActive(false);
+
+        layoutAnimator = dialoguePanel.GetComponent<Animator>();
 
         choicesText = new TextMeshProUGUI[choices.Length];
         int index = 0;
@@ -47,37 +61,17 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    private void OnEnable()
-    {
-        // Subscribe to scene loaded event
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        // Unsubscribe from the scene loaded event
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        // Reset dialogue UI
-        dialoguePanel.SetActive(false);
-        dialogueText.text = "";
-        dialogueIsPlaying = false;
-    }
-
     private void Update() 
     {
-        if (!dialogueIsPlaying)
-        {
-            return;
-        }
+       if (!dialogueIsPlaying) 
+       {
+        return;
+       }
 
-        if (InputManager.GetInstance().GetSubmitPressed())
-        {
+       if (InputManager.GetInstance().GetSubmitPressed())
+       {
             ContinueStory();
-        }
+       }
     }
 
     public void EnterDialogueMode(TextAsset inkJSON)
@@ -85,6 +79,10 @@ public class DialogueManager : MonoBehaviour
         currentStory = new Story(inkJSON.text);
         dialogueIsPlaying = true;
         dialoguePanel.SetActive(true);
+
+        displayNameText.text = "???";
+        portraitAnimator.Play("deafult");
+        layoutAnimator.Play("right");
 
         ContinueStory();
     }
@@ -100,14 +98,45 @@ public class DialogueManager : MonoBehaviour
 
     private void ContinueStory()
     {
-        if (currentStory.canContinue)
+          if (currentStory.canContinue)
         {
             dialogueText.text = currentStory.Continue();
             DisplayChoices();
+            HandleTags(currentStory.currentTags);
         }
         else
         {
             StartCoroutine(ExitDialogueMode());
+        }
+    }
+
+    private void HandleTags(List<string> currentTags)
+    {
+        foreach(string tag in currentTags)
+        {
+            string[] splitTag = tag.Split(':');
+            if(splitTag.Length !=2)
+            {
+                Debug.LogError("Tag could not be appropriately parsed: " + tag);
+            }
+            string tagKey = splitTag[0].Trim();
+            string tagValue = splitTag[1].Trim();
+
+            switch (tagKey)
+            {
+                case SPEAKER_TAG:
+                    displayNameText.text = tagValue;
+                    break;
+                case PORTRAIT_TAG:
+                    portraitAnimator.Play(tagValue);
+                    break;
+                case LAYOUT_TAG:
+                    layoutAnimator.Play(tagValue);
+                    break;
+                default:
+                Debug.LogWarning("tag came in but is not currently being handled" + tag);
+                    break;
+            }
         }
     }
 
@@ -122,13 +151,13 @@ public class DialogueManager : MonoBehaviour
 
         int index = 0;
 
-        foreach (Choice choice in currentChoices)
+        foreach(Choice choice in currentChoices)
         {
             choices[index].gameObject.SetActive(true);
             choicesText[index].text = choice.text;
             index++;
         }
-        
+
         for (int i = index; i < choices.Length; i++)
         {
             choices[i].gameObject.SetActive(false);
